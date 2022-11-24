@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SpotycachAPI.Models;
+using SpotycachAPI.Models.Contacts;
 
 namespace SpotycachAPI.Data
 {

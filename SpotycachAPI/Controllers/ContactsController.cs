@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SpotycachAPI.Data;
-using SpotycachAPI.Models;
+using SpotycachAPI.Models.Contacts;
 
 namespace SpotycachAPI.Controllers
 {

@@ -1,4 +1,4 @@
-﻿namespace SpotycachAPI.Models
+﻿namespace SpotycachAPI.Models.Contacts
 {
     public class Contact
     {
