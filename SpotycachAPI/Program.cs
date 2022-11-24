@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using SpotycachAPI.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +10,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ContactsApiDbContext>(options => options.UseInMemoryDatabase("CRMDb"));
+// builder.Services.AddDbContext<ContactsApiDbContext>(options => options.UseInMemoryDatabase("CRMDb"));
+builder.Services.AddDbContext<ContactsApiDbContext>(options => 
+options.UseSqlServer(builder.Configuration.GetConnectionString("SpotycachApiConnectionString")));
 
 var app = builder.Build();
 
