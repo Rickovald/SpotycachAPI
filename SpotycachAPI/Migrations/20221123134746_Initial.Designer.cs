@@ -11,7 +11,7 @@ using SpotycachAPI.Data;
 
 namespace SpotycachAPI.Migrations
 {
-    [DbContext(typeof(ContactsApiDbContext))]
+    [DbContext(typeof(ApiDbContext))]
     [Migration("20221123134746_Initial")]
     partial class Initial
     {

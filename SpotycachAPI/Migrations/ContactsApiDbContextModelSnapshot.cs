@@ -10,7 +10,7 @@ using SpotycachAPI.Data;
 
 namespace SpotycachAPI.Migrations
 {
-    [DbContext(typeof(ContactsApiDbContext))]
+    [DbContext(typeof(ApiDbContext))]
     partial class ContactsApiDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

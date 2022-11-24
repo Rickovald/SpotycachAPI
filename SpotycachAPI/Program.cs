@@ -11,7 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // builder.Services.AddDbContext<ContactsApiDbContext>(options => options.UseInMemoryDatabase("CRMDb"));
-builder.Services.AddDbContext<ContactsApiDbContext>(options => 
+builder.Services.AddDbContext<ApiDbContext>(options => 
 options.UseSqlServer(builder.Configuration.GetConnectionString("SpotycachApiConnectionString")));
 
 var app = builder.Build();

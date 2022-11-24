@@ -9,9 +9,9 @@ namespace SpotycachAPI.Controllers
     [Route("api/[controller]")]
     public class ContactsController : Controller
     {
-        private readonly ContactsApiDbContext _context;
+        private readonly ApiDbContext _context;
 
-        public ContactsController(ContactsApiDbContext dbContext)
+        public ContactsController(ApiDbContext dbContext)
         {
             this._context = dbContext;
         }
@@ -39,7 +39,7 @@ namespace SpotycachAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> AddContact(AddContactRequest addContactRequest)
         {
-            var contact = new Contact()
+            var contact = new User()
             {
                 Id = Guid.NewGuid(),
                 Address = addContactRequest.Address,
