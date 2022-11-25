@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SpotycachAPI.Data;
 using SpotycachAPI.Models.Contacts;
@@ -17,7 +18,7 @@ namespace SpotycachAPI.Controllers
         }
 
         
-        [HttpGet]
+        [HttpGet, Authorize]
         public async Task<IActionResult> GetContacts()
         {
             return Ok(await _context.Contacts.ToListAsync());
