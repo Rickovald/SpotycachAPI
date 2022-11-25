@@ -11,7 +11,7 @@ namespace SpotycachAPI.Data
 
         }
 
-        public DbSet<Contacts> Contacts { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
         public DbSet<User> Users { get; set; }
     }
 }

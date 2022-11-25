@@ -1,6 +1,6 @@
 ﻿namespace SpotycachAPI.Models.Contacts
 {
-    public class User
+    public class Contact
     {
         public Guid Id { get; set; }
         public string FullName { get; set; } = string.Empty;

@@ -39,7 +39,7 @@ namespace SpotycachAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> AddContact(AddContactRequest addContactRequest)
         {
-            var contact = new User()
+            var contact = new Contact()
             {
                 Id = Guid.NewGuid(),
                 Address = addContactRequest.Address,
