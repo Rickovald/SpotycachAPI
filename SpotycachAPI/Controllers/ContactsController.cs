@@ -18,7 +18,7 @@ namespace SpotycachAPI.Controllers
         }
 
         
-        [HttpGet, Authorize]
+        [HttpGet]
         public async Task<IActionResult> GetContacts()
         {
             return Ok(await _context.Contacts.ToListAsync());

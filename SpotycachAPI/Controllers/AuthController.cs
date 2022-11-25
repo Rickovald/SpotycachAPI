@@ -27,14 +27,14 @@ namespace SpotycachAPI.Controllers
 
         public static User user = new User();
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(UserRequest request)
+        public async Task<ActionResult<User>> Register(UserAuthRequest request)
         {
             CreatePasswordHash(request.Password, out byte[] passwodHash, out byte[] passwodSalt);
             var user = new User();
             user.Username = request.Username;
             user.PasswordHash = passwodHash;
             user.PasswordSalt = passwodSalt;
-            user.Address = string.Empty;
+            user.Role = "user";
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -43,7 +43,7 @@ namespace SpotycachAPI.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(UserRequest request)
+        public async Task<ActionResult<string>> Login(UserAuthRequest request)
         {
             var user = _context.Users.Where(b => b.Username == request.Username).FirstOrDefault();
 
@@ -83,7 +83,8 @@ namespace SpotycachAPI.Controllers
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
