@@ -5,6 +5,8 @@ import { AuthModule } from "./auth/auth.module";
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppointsModule } from './appoints/appoints.module';
+import { StuffModule } from './Stuff/stuff.module';
+import { ComplectModule } from './Complect/complects.module';
 
 @Module({
   imports: [
@@ -28,7 +30,9 @@ import { AppointsModule } from './appoints/appoints.module';
       }
     }),
     AuthModule,
-    AppointsModule
+    AppointsModule,
+    StuffModule,
+    ComplectModule
   ],
   controllers: [AppController],
   providers: [AppService],
