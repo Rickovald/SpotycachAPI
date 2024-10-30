@@ -60,7 +60,6 @@ export class AppointsService {
 
       result[id - 1].slots[`${weekDaysNames[dayOfWeek]}`].push(element);
     });
-    // console.log(result);
 
     return result;
   }

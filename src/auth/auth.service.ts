@@ -1,59 +1,109 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "src/auth/entities/user.entity";
-import { Repository } from "typeorm";
-import { randomBytes, scrypt as _scrypt } from "crypto";
-import { CreateUserDto } from "src/auth/dto/create-user.dto";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { User } from './entities/user.entity';
+import { Session } from './entities/session.entity';
 import { promisify } from "util";
-import { JwtService } from "@nestjs/jwt";
+import { randomBytes, scrypt as _scrypt } from "crypto";
 
 const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class AuthService {
     constructor(
+        private jwtService: JwtService,
+        @InjectRepository(Session)
+        private sessionRepository: Repository<Session>,
         @InjectRepository(User)
         private userRepository: Repository<User>,
-        private jwtService: JwtService
     ) { }
 
+    async register(registerDto: RegisterDto, deviceIp: string) {
 
-    async register(createUserDto: CreateUserDto) {
-        const { email, password } = createUserDto;
+        const hashedPassword = await this.generatePasswordHash(registerDto.password);
+        const user = this.userRepository.create({ ...registerDto, password: hashedPassword });
 
-        // checking user already exists or not
-        const user = await this.userRepository.findOne({ where: { email } });
-        if (user) {
-            throw new BadRequestException('User Already Exists');
+        const session = this.sessionRepository.create({ user, deviceIp });
+        await this.sessionRepository.save(session);
+
+        const payload = { userId: user.id, sessionId: session.id, role: user.role };
+        // const token = this.jwtService.sign(payload);
+        const accessToken = await this.jwtService.signAsync(payload);
+        const refreshToken = await this.jwtService.signAsync(payload, {
+            expiresIn: '7d',
+        });
+        await this.userRepository.save(user);
+        return { accessToken, refreshToken };
+    }
+
+    async login(loginDto: LoginDto, deviceIp: string) {
+        const user = await this.userRepository.findOne(
+            {
+                where: { email: loginDto.email },
+                relations: ['role', 'sessions'],
+            });
+        if (!user || !(await this.validatePassword(loginDto, user.password))) {
+            throw new UnauthorizedException('Invalid credentials');
         }
+        const existingSession = user.sessions.find(session => session.deviceIp === deviceIp);
+        if (existingSession) {
+            const payload = { userId: user.id, sessionId: existingSession.id, role: user.role.name };
+            const accessToken = await this.jwtService.signAsync(payload);
+            const refreshToken = await this.jwtService.signAsync(payload, {
+                expiresIn: '7d',
+            });
+            return { accessToken, refreshToken };
+        }
+        const session = this.sessionRepository.create({ user, deviceIp });
+        session.refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 дней
 
-        // hashing the password with salt
+        await this.sessionRepository.save(session);
+
+        const payload = { userId: user.id, sessionId: session.id, role: user.role.name };
+        // const token = this.jwtService.sign(payload);
+        const accessToken = await this.jwtService.signAsync(payload);
+        const refreshToken = await this.jwtService.signAsync(payload, {
+            expiresIn: '7d',
+        });
+        // session.refreshToken = refreshToken;
+
+        await this.sessionRepository.save(session);
+
+        return { accessToken, refreshToken };
+    }
+
+    async logout(sessionId: string) {
+        return await this.sessionRepository.delete(sessionId);
+    }
+
+    async validatePassword(user: LoginDto, password: string) {
+        const [salt, storedHash] = password.split('.');
+        const hash = (await scrypt(user.password, salt, 32)) as Buffer;
+        return storedHash === hash.toString('hex');
+    }
+
+    async generatePasswordHash(password: string) {
         const salt = randomBytes(8).toString('hex');
         const hash = (await scrypt(password, salt, 32)) as Buffer;
-        const hashedPassword = salt + '.' + hash.toString('hex');
-
-        // saving the user
-        const newUser = this.userRepository.create({ email, password: hashedPassword });
-        await this.userRepository.save(newUser);
+        return salt + '.' + hash.toString('hex');
     }
 
-    async validateUser(email: string, password: string) {
-        const user = await this.userRepository.findOne({ where: { email } });
-        if (user) {
-            const [salt, hashedPassword] = user.password.split('.');
+    async refreshAccessToken(refreshToken: string) {
+        try {
+            const decoded = await this.jwtService.verifyAsync(refreshToken);
+            const userId = decoded.userId;
+            const session = decoded.session;
+            const role = decoded.role;
+            const payload = { userId, session, role };
 
-            const controlHashedPassword = (await scrypt(password, salt, 32)) as Buffer;
-            if (hashedPassword === controlHashedPassword.toString('hex')) {
-                return user;
-            }
+            const newAccessToken = await this.jwtService.signAsync({ payload }, { expiresIn: '1h' });
+            return { accessToken: newAccessToken };
+        } catch (error) {
+            return null;
         }
-        return null;
     }
 
-    login(user: User) {
-        const payload = { sub: user.id, email: user.email };
-        return {
-            access_token: this.jwtService.sign(payload)
-        };
-    }
 }

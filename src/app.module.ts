@@ -5,8 +5,12 @@ import { AuthModule } from "./auth/auth.module";
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppointsModule } from './appoints/appoints.module';
-import { StuffModule } from './Stuff/stuff.module';
-import { ComplectModule } from './Complect/complects.module';
+import { StuffModule } from './stuff/stuff.module';
+import { ComplectModule } from './complect/complects.module';
+import { UserModule } from './users/user.module';
+import { SessionCleanerService } from './auth/session-clean.service';
+import { Session } from './auth/entities/session.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -32,9 +36,12 @@ import { ComplectModule } from './Complect/complects.module';
     AuthModule,
     AppointsModule,
     StuffModule,
-    ComplectModule
+    ComplectModule,
+    UserModule,
+    TypeOrmModule.forFeature([Session]),
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SessionCleanerService],
 })
 export class AppModule { }

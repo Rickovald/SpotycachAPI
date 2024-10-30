@@ -36,8 +36,6 @@ export class ComplectsService {
      */
     async findAllComplects(): Promise<Complects[]> {
         const data = await this.compRepository.find();
-        console.log(this.compRepository);
-
         return data;
     }
 

@@ -37,7 +37,6 @@ export class StuffService {
      */
     async findAllStuff(): Promise<Stuff[]> {
         const data = await this.stuffRepository.find();
-        console.log(this.stuffRepository);
         return data;
     }
 
@@ -80,7 +79,6 @@ export class StuffService {
             stuff.name = updateStuffDto.name;
             stuff.price = updateStuffDto.price;
             stuff.complect = updateStuffDto.complect;
-            stuff.id = id;
             return await this.stuffRepository.save(stuff);
         } catch (error) {
             this.logger.log(
