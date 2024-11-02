@@ -25,17 +25,17 @@ export class User {
     @Column({ unique: false, type: 'varchar', nullable: false })
     avatar: string;
 
-    @OneToOne(() => Role, role => role.users)
+    @OneToOne(() => Role, role => role.id)
     role: Role;
 
-    @Column({ unique: false, type: 'varchar', nullable: true })
+    // @Column({ unique: false, type: 'varchar', nullable: true })
     @OneToMany(() => Session, session => session.user)
     sessions: Session[];
 
-    @AfterLoad()
-    initializeSessions() {
-        if (!this.sessions) {
-            this.sessions = [];
-        }
-    }
+    // @AfterLoad()
+    // initializeSessions() {
+    //     if (!this.sessions) {
+    //         this.sessions = [];
+    //     }
+    // }
 }

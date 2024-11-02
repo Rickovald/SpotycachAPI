@@ -44,8 +44,8 @@ export class AppointsController {
   // }
   @Post()
   async create(
-    @Body() createAppointDto: CreateAppointDto,
-    @Res() res: Response
+    @Body() createAppointDto: CreateAppointDto
+    // @Res() res: Response
   ) {
     return await this.appointsService.createAppoint(createAppointDto);
   }
@@ -54,7 +54,21 @@ export class AppointsController {
   async findAll(
     @Res() res: Response
   ) {
-    return await this.appointsService.findAllAppoints();
+    try {
+      // Получаем данные из Google Sheets через сервис
+      const data = await this.appointsService.findAllAppoints();
+
+      return res.status(HttpStatus.OK).json({
+        message: 'Данные успешно получены',
+        data,
+      });
+    } catch (error) {
+      // console.error('Ошибка при получении данных из Google Sheets:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Не удалось получить данные из Google Sheets',
+        error: error.message,
+      });
+    }
   }
 
   @Get(':id')

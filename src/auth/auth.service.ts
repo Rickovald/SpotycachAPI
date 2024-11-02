@@ -35,6 +35,7 @@ export class AuthService {
         const refreshToken = await this.jwtService.signAsync(payload, {
             expiresIn: '7d',
         });
+        user.sessions.push(session);
         await this.userRepository.save(user);
         return { accessToken, refreshToken };
     }
@@ -71,6 +72,8 @@ export class AuthService {
         // session.refreshToken = refreshToken;
 
         await this.sessionRepository.save(session);
+        user.sessions.push(session);
+        await this.userRepository.save(user);
 
         return { accessToken, refreshToken };
     }
