@@ -1,9 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
-import { CreateComplectsDto } from './dto/create-complects.dto';
-import { Complects } from './entities/complects.entity';
-import { UpdateComplectsDto } from './dto/update-complects.dto';
+import { CreateComplectsDto, UpdateComplectsDto } from '../common/dtos/complects.dto';
+import { Complects } from '../common/entities/complects.entity';
 
 @Injectable()
 export class ComplectsService {
@@ -35,7 +34,9 @@ export class ComplectsService {
      * @returns promise of array of stuff
      */
     async findAllComplects(): Promise<Complects[]> {
-        const data = await this.compRepository.find();
+        const data = await this.compRepository.find({
+            relations: ['stuff'],
+        });
         return data;
     }
 
@@ -45,9 +46,12 @@ export class ComplectsService {
      * @returns promise of stuff
      */
 
-    async findById(id: number): Promise<Complects> {
+    async findById(id: string): Promise<Complects> {
         try {
-            const data = await this.compRepository.findOneBy({ id });
+            const data = await this.compRepository.findOne({
+                where: { id: id },
+                relations: ['stuff'],
+            });;
             if (!data) {
                 throw new Error('Complect not found.');
             }
@@ -67,17 +71,16 @@ export class ComplectsService {
      * @returns promise of udpate stuff
      */
     async updateComplect(
-        id: number,
+        id: string,
         updateComplectDto: UpdateComplectsDto,
     ): Promise<Complects> {
         try {
-            const stuff: Complects = new Complects();
+            const stuff = await this.findById(id);
             if (!updateComplectDto.name || !updateComplectDto.price) {
                 throw new Error('updateComplectDto property is undefined');
             }
             stuff.name = updateComplectDto.name;
             stuff.price = updateComplectDto.price;
-            stuff.id = id;
             return await this.compRepository.save(stuff);
         } catch (error) {
             this.logger.log(

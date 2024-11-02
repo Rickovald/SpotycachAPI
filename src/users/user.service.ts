@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/auth/entities/user.entity';
-import { Role } from 'src/auth/entities/role.entity';
-import { RegisterDto } from 'src/auth/dto/register.dto';
+import { RegisterDto } from 'src/common/dtos/register.dto';
+import { Role } from 'src/common/entities/role.entity';
+import { User } from 'src/common/entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -16,11 +16,14 @@ export class UserService {
     ) { }
 
     async findAll(): Promise<User[]> {
-        return this.userRepository.find({ relations: ['role'] });
+        return this.userRepository.find({ relations: ['role', 'sessions'] });
     }
 
-    async findOne(id: number): Promise<User> {
-        return this.userRepository.findOneBy({ id });
+    async findOne(id: string): Promise<User> {
+        return this.userRepository.findOne({
+            where: { id: id },
+            relations: ['role', 'sessions'],
+        });
     }
 
     async create(createUserDto: RegisterDto): Promise<User> {
@@ -30,7 +33,7 @@ export class UserService {
 
         // Добавление ролей
 
-        const role = await this.roleRepository.findOneBy({ id: 0 });
+        const role = await this.roleRepository.findOneBy({ name: 'user' });
         user.role = role;
         return this.userRepository.save(user);
     }

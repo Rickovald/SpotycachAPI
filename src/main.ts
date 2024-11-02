@@ -11,7 +11,6 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization', // Allowed headers
     credentials: true,
   });
-
   await app.listen(5001);
 }
 bootstrap();

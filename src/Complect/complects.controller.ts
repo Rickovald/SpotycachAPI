@@ -7,8 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { CreateComplectsDto } from './dto/create-complects.dto';
-import { UpdateComplectsDto } from './dto/update-complects.dto';
+import { CreateComplectsDto, UpdateComplectsDto } from '../common/dtos/complects.dto';
 import { ComplectsService } from './complects.service';
 
 @Controller('complects')
@@ -27,12 +26,12 @@ export class ComplectsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.complectService.findById(+id);
+    return this.complectService.findById(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateComplectDto: UpdateComplectsDto) {
-    return this.complectService.updateComplect(+id, updateComplectDto);
+    return this.complectService.updateComplect(id, updateComplectDto);
   }
 
   @Delete(':id')

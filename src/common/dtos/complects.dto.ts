@@ -1,4 +1,5 @@
-import { IsAlphanumeric, IsNotEmpty, MinLength, IsDate } from 'class-validator';
+import { IsAlphanumeric, IsNotEmpty, MinLength } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateComplectsDto {
     @IsNotEmpty()
@@ -11,3 +12,5 @@ export class CreateComplectsDto {
     @IsNotEmpty()
     price: number;
 }
+
+export class UpdateComplectsDto extends PartialType(CreateComplectsDto) { }

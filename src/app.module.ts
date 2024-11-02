@@ -9,8 +9,9 @@ import { StuffModule } from './stuff/stuff.module';
 import { ComplectModule } from './complect/complects.module';
 import { UserModule } from './users/user.module';
 import { SessionCleanerService } from './auth/session-clean.service';
-import { Session } from './auth/entities/session.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { Session } from './common/entities/session.entity';
+import { StuffTypesModule } from './stuffTypes/stuffTypes.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuthModule,
     AppointsModule,
     StuffModule,
+    StuffTypesModule,
     ComplectModule,
     UserModule,
     TypeOrmModule.forFeature([Session]),

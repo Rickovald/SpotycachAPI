@@ -5,10 +5,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtStrategy } from './strategy/jwt.strategy';
-import { Session } from './entities/session.entity';
-import { User } from './entities/user.entity';
 import { UserModule } from 'src/users/user.module';
 import { secretKey } from "src/jwt-constants";
+import { Session } from 'src/common/entities/session.entity';
+import { User } from 'src/common/entities/user.entity';
 
 @Module({
     imports: [

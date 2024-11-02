@@ -1,19 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
-import { CreateStuffDto, UpdateStuffDto } from '../common/dtos/stuff.dto';
-import { Stuff } from '../common/entities/stuff.entity';
+import { StuffTypes } from 'src/common/entities/stuffTypes.entity';
+import { CreateStuffTypesDto, UpdateStuffTypesDto } from 'src/common/dtos/stuffTypes.dto';
 
 @Injectable()
-export class StuffService {
+export class StuffTypesService {
     /**
      * Here, we have used data mapper approch for this tutorial that is why we
      * injecting repository here. Another approch can be Active records.
      */
-    private logger = new Logger(StuffService.name);
+    private logger = new Logger(StuffTypesService.name);
     constructor(
-        @InjectRepository(Stuff)
-        private readonly stuffRepository: Repository<Stuff>,
+        @InjectRepository(StuffTypes)
+        private readonly stuffRepository: Repository<StuffTypes>,
     ) { }
 
     /**
@@ -22,22 +22,17 @@ export class StuffService {
      * we have defined what are the keys we are expecting from body
      * @returns promise of stuff
      */
-    async createStuff(createStuffDto: CreateStuffDto): Promise<Stuff> {
-        const stuff: Stuff = new Stuff();
+    async createStuff(createStuffDto: CreateStuffTypesDto): Promise<StuffTypes> {
+        const stuff: StuffTypes = new StuffTypes();
         stuff.name = createStuffDto.name;
-        stuff.price = createStuffDto.price;
-        stuff.complect = createStuffDto.complect;
-        stuff.type = createStuffDto.type;
         return await this.stuffRepository.save(stuff);
     }
     /**
      * this function is used to get all the stuff's list
      * @returns promise of array of stuff
      */
-    async findAllStuff(): Promise<Stuff[]> {
-        const data = await this.stuffRepository.find({
-            relations: ['complect', 'type'],
-        });
+    async findAllStuff(): Promise<StuffTypes[]> {
+        const data = await this.stuffRepository.find();
         return data;
     }
 
@@ -47,16 +42,16 @@ export class StuffService {
      * @returns promise of stuff
      */
 
-    async findById(id: string): Promise<Stuff> {
+    async findById(id: string): Promise<StuffTypes> {
         try {
-            const user = await this.stuffRepository.findOne({
+            const stuff = await this.stuffRepository.findOne({
                 where: { id: id },
-                relations: ['complect', 'type'],
+                relations: ['stuff'],
             });
-            if (!user) {
-                throw new Error('Intsrument not found.');
+            if (!stuff) {
+                throw new Error('Type not found.');
             }
-            return user;
+            return stuff;
         } catch (error) {
             this.logger.log(
                 `StuffService:findById: ${JSON.stringify(error.message)}`,
@@ -73,16 +68,14 @@ export class StuffService {
      */
     async updateStuff(
         id: string,
-        updateStuffDto: UpdateStuffDto,
-    ): Promise<Stuff> {
+        updateStuffDto: UpdateStuffTypesDto,
+    ): Promise<StuffTypes> {
         try {
             const stuff = await this.findById(id);
-            if (!updateStuffDto.name || !updateStuffDto.price) {
+            if (!updateStuffDto.name) {
                 throw new Error('updateStuffDto property is undefined');
             }
             stuff.name = updateStuffDto.name;
-            stuff.price = updateStuffDto.price;
-            stuff.complect = updateStuffDto.complect;
             return await this.stuffRepository.save(stuff);
         } catch (error) {
             this.logger.log(

@@ -8,17 +8,17 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
 export class UserController {
     constructor(private readonly userService: UserService) { }
 
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('admin')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Get()
     async findAll() {
         return await this.userService.findAll();
     }
 
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('admin')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Get(':id')
-    async findOne(@Param('id') id: number) {
+    async findOne(@Param('id') id: string) {
         return await this.userService.findOne(id);
     }
 
@@ -29,8 +29,8 @@ export class UserController {
     //     return this.userService.update(id, updateUserDto);
     // }
 
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles('admin')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Delete(':id')
     async remove(@Param('id') id: string) {
         return await this.userService.remove(id);

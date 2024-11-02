@@ -2,12 +2,12 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { User } from './entities/user.entity';
-import { Session } from './entities/session.entity';
+import { RegisterDto } from '../common/dtos/register.dto';
+import { LoginDto } from '../common/dtos/login.dto';
 import { promisify } from "util";
 import { randomBytes, scrypt as _scrypt } from "crypto";
+import { Session } from 'src/common/entities/session.entity';
+import { User } from 'src/common/entities/user.entity';
 
 const scrypt = promisify(_scrypt);
 

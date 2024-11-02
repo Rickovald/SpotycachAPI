@@ -1,4 +1,7 @@
 import { IsAlphanumeric, IsNotEmpty, MinLength, IsDate } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { User } from '../entities/user.entity';
+import { Stuff } from '../entities/stuff.entity';
 
 export class CreateAppointDto {
   @IsNotEmpty()
@@ -6,8 +9,16 @@ export class CreateAppointDto {
   @IsAlphanumeric(undefined, {
     message: 'Username does not allow other than alpha numeric chars.',
   })
-  booked: string;
+  bookedBy: User;
 
   @IsDate()
   datetime: Date;
+
+  @IsNotEmpty()
+  room: number;
+
+  @IsNotEmpty()
+  stuff: Stuff[];
 }
+
+export class UpdateAppointDto extends PartialType(CreateAppointDto) { }

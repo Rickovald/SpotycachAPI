@@ -1,11 +1,11 @@
-import { AfterLoad, Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { AfterLoad, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Session } from "./session.entity";
 import { Role } from "./role.entity";
 
 @Entity('users')
 export class User {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
     @Column({ unique: true })
     email: string;
@@ -25,7 +25,7 @@ export class User {
     @Column({ unique: false, type: 'varchar', nullable: false })
     avatar: string;
 
-    @ManyToOne(() => Role, role => role.users)
+    @OneToOne(() => Role, role => role.users)
     role: Role;
 
     @Column({ unique: false, type: 'varchar', nullable: true })

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Session } from './entities/session.entity';
 import { Cron } from '@nestjs/schedule';
+import { Session } from 'src/common/entities/session.entity';
 
 @Injectable()
 export class SessionCleanerService {

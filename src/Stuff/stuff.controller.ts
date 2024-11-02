@@ -7,8 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { CreateStuffDto } from './dto/create-stuff.dto';
-import { UpdateStuffDto } from './dto/update-stuff.dto';
+import { CreateStuffDto, UpdateStuffDto } from '../common/dtos/stuff.dto';
 import { StuffService } from './stuff.service';
 
 @Controller('stuff')
@@ -27,16 +26,16 @@ export class StuffController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.stuffService.findById(+id);
+    return this.stuffService.findById(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateStuffDto: UpdateStuffDto) {
-    return this.stuffService.updateStuff(+id, updateStuffDto);
+    return this.stuffService.updateStuff(id, updateStuffDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.stuffService.removeStuff(+id);
+    return this.stuffService.removeStuff(id);
   }
 }
