@@ -1,6 +1,7 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Stuff } from './stuff.entity';
+import { AppointType } from './appointType.entity';
 
 @Entity()
 export class Appoints {
@@ -21,6 +22,9 @@ export class Appoints {
 
   @Column({ type: 'varchar', nullable: false })
   userName: string;
+
+  @ManyToOne(() => AppointType, type => type.id)
+  state: number;
 
   @ManyToMany(() => Stuff, stuff => stuff.rentals, { cascade: true })
   @JoinTable() // Указывает TypeORM создать промежуточную таблицу
