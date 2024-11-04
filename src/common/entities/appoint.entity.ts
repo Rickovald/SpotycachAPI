@@ -1,7 +1,7 @@
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Stuff } from './stuff.entity';
-import { AppointType } from './appointType.entity';
+import { AppointState } from './appointState.entity';
 
 @Entity()
 export class Appoints {
@@ -23,7 +23,7 @@ export class Appoints {
   @Column({ type: 'varchar', nullable: false })
   userName: string;
 
-  @ManyToOne(() => AppointType, type => type.id)
+  @ManyToOne(() => AppointState, state => state.id)
   state: number;
 
   @ManyToMany(() => Stuff, stuff => stuff.rentals, { cascade: true })

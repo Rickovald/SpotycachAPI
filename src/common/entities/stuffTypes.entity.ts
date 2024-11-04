@@ -3,8 +3,8 @@ import { Stuff } from './stuff.entity';
 
 @Entity()
 export class StuffTypes {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column({ type: 'varchar', nullable: false })
   name: string;
