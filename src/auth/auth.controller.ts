@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Res, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RegisterDto } from '../common/dtos/register.dto';
 import { LoginDto } from '../common/dtos/login.dto';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -29,11 +30,22 @@ export class AuthController {
 
     @UseGuards(AuthGuard('jwt'))
     @Post('logout')
-    async logout(@Req() req) {
-        return await this.authService.logout(req.user.sessionId);
+    async logout(
+        @Req() req,
+        @Res() res: Response
+    ) {
+        const userAgent = req.get('User-Agent');
+        const ip = req.ip;
+        const language = req.get('Accept-Language');
+        const device = `${userAgent} ${ip} ${language}`;
+        const session = await this.authService.logout(device);
+        return res.status(HttpStatus.OK).json({
+            message: 'Выход успешен',
+            session
+        });
     }
 
-    // @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'))
     @Post('refresh')
     async refresh(@Req() req) {
         return await this.authService.refreshAccessToken(req.body.refreshToken);

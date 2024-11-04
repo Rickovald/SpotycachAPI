@@ -12,6 +12,7 @@ import { SessionCleanerService } from './auth/session-clean.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Session } from './common/entities/session.entity';
 import { StuffTypesModule } from './stuffTypes/stuffTypes.module';
+import { GroupModule } from './groups/groups.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { StuffTypesModule } from './stuffTypes/stuffTypes.module';
     StuffTypesModule,
     ComplectModule,
     UserModule,
+    GroupModule,
     TypeOrmModule.forFeature([Session]),
     ScheduleModule.forRoot(),
   ],

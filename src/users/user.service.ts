@@ -16,13 +16,15 @@ export class UserService {
     ) { }
 
     async findAll(): Promise<User[]> {
-        return this.userRepository.find({ relations: ['role', 'sessions'] });
+        return this.userRepository.find({
+            relations: ['role', 'sessions', 'group']
+        });
     }
 
     async findOne(id: string): Promise<User> {
         return this.userRepository.findOne({
             where: { id: id },
-            relations: ['role', 'sessions'],
+            relations: ['role', 'sessions', 'group'],
         });
     }
 

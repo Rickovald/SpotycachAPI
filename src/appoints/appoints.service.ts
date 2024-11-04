@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { Appoints } from '../common/entities/appoint.entity';
 import { CreateAppointDto, UpdateAppointDto } from 'src/common/dtos/appoint.dto';
+import { User } from 'src/common/entities/user.entity';
 
 @Injectable()
 export class AppointsService {
@@ -15,6 +16,8 @@ export class AppointsService {
   constructor(
     @InjectRepository(Appoints)
     private readonly appointsRepository: Repository<Appoints>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) { }
 
   /**
@@ -23,12 +26,22 @@ export class AppointsService {
    * we have defined what are the keys we are expecting from body
    * @returns promise of appoint
    */
-  async createAppoint(createAppointDto: CreateAppointDto): Promise<Appoints> {
-    const appoint: Appoints = new Appoints();
-    appoint.bookedBy = createAppointDto.bookedBy;
-    appoint.datetime = createAppointDto.datetime;
-    appoint.room = createAppointDto.room;
-    return await this.appointsRepository.save(appoint);
+  async createAppoint(createAppointDto: CreateAppointDto): Promise<Appoints[]> {
+    const appoints: Appoints[] = [];
+    let user: User | null = null;
+
+    if (!!createAppointDto.bookedBy) {
+      user = await this.userRepository.findOneBy({ id: createAppointDto.bookedBy });
+    }
+    createAppointDto.datetime.forEach((date) => {
+      const appoint: Appoints = new Appoints();
+      appoint.bookedBy = user;
+      appoint.datetime = date;
+      appoint.room = createAppointDto.room;
+      appoint.userName = createAppointDto.userName;
+      appoints.push(appoint);
+    });
+    return await this.appointsRepository.save(appoints);
   }
 
   /**
@@ -109,6 +122,7 @@ export class AppointsService {
       appoint.bookedBy = updateAppointDto.bookedBy;
       appoint.datetime = updateAppointDto.datetime;
       appoint.room = updateAppointDto.room;
+      appoint.userName = updateAppointDto.userName;
       return await this.appointsRepository.save(appoint);
     } catch (error) {
       this.logger.log(
@@ -123,7 +137,7 @@ export class AppointsService {
    * @param id is the type of number, which represent id of appoint
    * @returns nuber of rows deleted or affected
    */
-  async removeAppoint(id: number): Promise<DeleteResult> {
+  async removeAppoint(id: string): Promise<DeleteResult> {
     return await this.appointsRepository.delete(id);
   }
 }

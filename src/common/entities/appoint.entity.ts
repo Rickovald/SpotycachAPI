@@ -19,6 +19,9 @@ export class Appoints {
   @Column({ type: 'integer', nullable: true })
   room: number;
 
+  @Column({ type: 'varchar', nullable: false })
+  userName: string;
+
   @ManyToMany(() => Stuff, stuff => stuff.rentals, { cascade: true })
   @JoinTable() // Указывает TypeORM создать промежуточную таблицу
   stuff: Stuff[];

@@ -1,6 +1,7 @@
-import { AfterLoad, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Session } from "./session.entity";
 import { Role } from "./role.entity";
+import { Group } from "./group.entity";
 
 @Entity('users')
 export class User {
@@ -25,13 +26,16 @@ export class User {
     @Column({ unique: false, type: 'varchar', nullable: false })
     avatar: string;
 
-    @OneToOne(() => Role, role => role.id)
+    @ManyToOne(() => Role, role => role.id)
     role: Role;
 
     // @Column({ unique: false, type: 'varchar', nullable: true })
     @OneToMany(() => Session, session => session.user)
     sessions: Session[];
 
+    @ManyToMany(() => Group, group => group.users, { cascade: true })
+    @JoinTable() // Указывает TypeORM создать промежуточную таблицу
+    group: Group[];
     // @AfterLoad()
     // initializeSessions() {
     //     if (!this.sessions) {

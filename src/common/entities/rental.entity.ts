@@ -16,6 +16,9 @@ export class Rental {
   @ManyToOne(() => User, user => user.id)
   bookedBy: User;
 
+  @Column({ type: 'varchar', nullable: false })
+  userName: string;
+
   @ManyToMany(() => Stuff, stuff => stuff.rentals, { cascade: true })
   @JoinTable() // Указывает TypeORM создать промежуточную таблицу
   stuff: Stuff[];

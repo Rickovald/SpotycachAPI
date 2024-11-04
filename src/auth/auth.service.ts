@@ -29,7 +29,15 @@ export class AuthService {
         const session = this.sessionRepository.create({ user, deviceIp });
         await this.sessionRepository.save(session);
 
-        const payload = { userId: user.id, sessionId: session.id, role: user.role };
+        const payload = {
+            userId: user.id,
+            userName: user.username,
+            group: user.group,
+            phone: user.phone,
+            avatar: user.avatar,
+            email: user.email,
+            role: user.role.name
+        };
         // const token = this.jwtService.sign(payload);
         const accessToken = await this.jwtService.signAsync(payload);
         const refreshToken = await this.jwtService.signAsync(payload, {
@@ -44,14 +52,24 @@ export class AuthService {
         const user = await this.userRepository.findOne(
             {
                 where: { email: loginDto.email },
-                relations: ['role', 'sessions'],
+                relations: ['role', 'sessions', 'group'],
             });
         if (!user || !(await this.validatePassword(loginDto, user.password))) {
             throw new UnauthorizedException('Invalid credentials');
         }
         const existingSession = user.sessions.find(session => session.deviceIp === deviceIp);
         if (existingSession) {
-            const payload = { userId: user.id, sessionId: existingSession.id, role: user.role.name };
+            console.log(user);
+
+            const payload = {
+                userId: user.id,
+                userName: user.username,
+                group: user.group,
+                phone: user.phone,
+                avatar: user.avatar,
+                email: user.email,
+                role: user.role.name
+            };
             const accessToken = await this.jwtService.signAsync(payload);
             const refreshToken = await this.jwtService.signAsync(payload, {
                 expiresIn: '7d',
@@ -63,7 +81,15 @@ export class AuthService {
 
         await this.sessionRepository.save(session);
 
-        const payload = { userId: user.id, sessionId: session.id, role: user.role.name };
+        const payload = {
+            userId: user.id,
+            userName: user.username,
+            group: user.group,
+            phone: user.phone,
+            avatar: user.avatar,
+            email: user.email,
+            role: user.role.name
+        };
         // const token = this.jwtService.sign(payload);
         const accessToken = await this.jwtService.signAsync(payload);
         const refreshToken = await this.jwtService.signAsync(payload, {
@@ -78,8 +104,15 @@ export class AuthService {
         return { accessToken, refreshToken };
     }
 
-    async logout(sessionId: string) {
-        return await this.sessionRepository.delete(sessionId);
+    async logout(device: string) {
+        const session = await this.sessionRepository.findOne(
+            {
+                where: { deviceIp: device },
+                relations: ['user'],
+            });
+
+        console.log(session);
+        return await this.sessionRepository.delete(session);
     }
 
     async validatePassword(user: LoginDto, password: string) {
@@ -97,10 +130,15 @@ export class AuthService {
     async refreshAccessToken(refreshToken: string) {
         try {
             const decoded = await this.jwtService.verifyAsync(refreshToken);
-            const userId = decoded.userId;
-            const session = decoded.session;
-            const role = decoded.role;
-            const payload = { userId, session, role };
+            const payload = {
+                userId: decoded.userId,
+                userName: decoded.role,
+                group: decoded.userName,
+                phone: decoded.group,
+                avatar: decoded.phone,
+                email: decoded.avatar,
+                role: decoded.email
+            };
 
             const newAccessToken = await this.jwtService.signAsync({ payload }, { expiresIn: '1h' });
             return { accessToken: newAccessToken };

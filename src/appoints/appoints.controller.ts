@@ -17,37 +17,35 @@ import { CreateAppointDto, UpdateAppointDto } from 'src/common/dtos/appoint.dto'
 @Controller('appoints')
 export class AppointsController {
   constructor(private readonly appointsService: AppointsService) { }
-  // async getData(
-  //   @Res() res: Response,
-  // ) {
-  //   try {
-  //     if (!spreadsheetId) {
-  //       return res.status(HttpStatus.BAD_REQUEST).json({
-  //         message: 'spreadsheetId и range обязательны для запроса',
-  //       });
-  //     }
 
-  //     // Получаем данные из Google Sheets через сервис
-  //     const data = await this.appointsService.getSheetData(spreadsheetId);
-
-  //     return res.status(HttpStatus.OK).json({
-  //       message: 'Данные успешно получены',
-  //       data,
-  //     });
-  //   } catch (error) {
-  //     // console.error('Ошибка при получении данных из Google Sheets:', error);
-  //     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-  //       message: 'Не удалось получить данные из Google Sheets',
-  //       error: error.message,
-  //     });
-  //   }
-  // }
   @Post()
   async create(
-    @Body() createAppointDto: CreateAppointDto
-    // @Res() res: Response
+    @Body() createAppointDto: CreateAppointDto,
+    @Res() res: Response
   ) {
-    return await this.appointsService.createAppoint(createAppointDto);
+    if (
+      !createAppointDto.datetime ||
+      !createAppointDto.room ||
+      !createAppointDto.userName
+    ) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Некорректные данные',
+      });
+    }
+    try {
+
+      const data = await this.appointsService.createAppoint(createAppointDto);
+
+      return res.status(HttpStatus.OK).json({
+        message: 'Запись успешно создана',
+        data,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Не удалось создать запись',
+        error: error.message,
+      });
+    }
   }
 
   @Get()
@@ -76,7 +74,12 @@ export class AppointsController {
     @Param('id') id: string,
     @Res() res: Response
   ) {
-    return await this.appointsService.findById(id);
+    const data = await this.appointsService.findById(id);
+
+    return res.status(HttpStatus.OK).json({
+      message: 'Запись успешно получена',
+      data,
+    });
   }
 
   @Patch(':id')
@@ -85,7 +88,12 @@ export class AppointsController {
     @Body() updateAppointDto: UpdateAppointDto,
     @Res() res: Response
   ) {
-    return await this.appointsService.updateAppoint(id, updateAppointDto);
+    const data = await this.appointsService.updateAppoint(id, updateAppointDto);
+
+    return res.status(HttpStatus.OK).json({
+      message: 'Запись успешно обновлена',
+      data,
+    });
   }
 
   @Delete(':id')
@@ -93,7 +101,12 @@ export class AppointsController {
     @Param('id') id: string,
     @Res() res: Response
   ) {
-    return await this.appointsService.removeAppoint(+id);
+    const data = await this.appointsService.removeAppoint(id);
+
+    return res.status(HttpStatus.OK).json({
+      message: 'Запись успешно удалена',
+      data,
+    });
   }
 
 
