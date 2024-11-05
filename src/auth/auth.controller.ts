@@ -45,9 +45,11 @@ export class AuthController {
         });
     }
 
-    @UseGuards(AuthGuard('jwt'))
+    // @UseGuards(AuthGuard('jwt'))
     @Post('refresh')
     async refresh(@Req() req) {
-        return await this.authService.refreshAccessToken(req.body.refreshToken);
+        const token = await this.authService.refreshAccessToken(req.body.refreshToken);
+        console.log(token);
+        return token;
     }
 }

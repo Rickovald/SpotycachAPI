@@ -110,8 +110,6 @@ export class AuthService {
                 where: { deviceIp: device },
                 relations: ['user'],
             });
-
-        console.log(session);
         return await this.sessionRepository.delete(session);
     }
 
@@ -140,7 +138,9 @@ export class AuthService {
                 role: decoded.email
             };
 
-            const newAccessToken = await this.jwtService.signAsync({ payload }, { expiresIn: '1h' });
+            const newAccessToken = await this.jwtService.signAsync(
+                { payload }, { expiresIn: '1h' }
+            );
             return { accessToken: newAccessToken };
         } catch (error) {
             return null;

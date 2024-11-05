@@ -42,7 +42,7 @@ export class StuffTypesService {
      * @returns promise of stuff
      */
 
-    async findById(id: string): Promise<StuffTypes> {
+    async findById(id: number): Promise<StuffTypes> {
         try {
             const stuff = await this.stuffRepository.findOne({
                 where: { id: id },
@@ -67,7 +67,7 @@ export class StuffTypesService {
      * @returns promise of udpate stuff
      */
     async updateStuff(
-        id: string,
+        id: number,
         updateStuffDto: UpdateStuffTypesDto,
     ): Promise<StuffTypes> {
         try {

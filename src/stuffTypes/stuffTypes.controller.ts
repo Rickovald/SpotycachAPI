@@ -25,12 +25,12 @@ export class StuffTypesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.stuffTypesService.findById(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStuffDto: UpdateStuffTypesDto) {
+  update(@Param('id') id: number, @Body() updateStuffDto: UpdateStuffTypesDto) {
     return this.stuffTypesService.updateStuff(id, updateStuffDto);
   }
 
