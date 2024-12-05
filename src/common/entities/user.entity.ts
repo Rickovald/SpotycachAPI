@@ -19,11 +19,11 @@ export class User {
 
     @Column({ unique: true, type: 'varchar', nullable: false })
     phone: string;
-    @Column({ unique: true, type: 'varchar', nullable: false })
+    @Column({ unique: true, type: 'varchar', nullable: true })
     contact: string;
-    @Column({ unique: true, type: 'varchar', nullable: false })
+    @Column({ unique: true, type: 'varchar', nullable: true })
     telegram: string;
-    @Column({ unique: false, type: 'varchar', nullable: false })
+    @Column({ unique: false, type: 'varchar', nullable: true })
     avatar: string;
 
     @ManyToOne(() => Role, role => role.id)

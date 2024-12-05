@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,6 +8,8 @@ import { promisify } from "util";
 import { randomBytes, scrypt as _scrypt } from "crypto";
 import { Session } from 'src/common/entities/session.entity';
 import { User } from 'src/common/entities/user.entity';
+import { Role } from 'src/common/entities/role.entity';
+import { Group } from 'src/common/entities/group.entity';
 
 const scrypt = promisify(_scrypt);
 
@@ -22,29 +24,64 @@ export class AuthService {
     ) { }
 
     async register(registerDto: RegisterDto, deviceIp: string) {
+        console.log(registerDto);
+
+        // Ensure the email is unique
+        const existingUser = await this.userRepository.findOne({ where: { email: registerDto.email } });
+        if (existingUser) {
+            throw new ConflictException('Email already in use');
+        }
+
+        // Set default role to 'user'
+        const role = await this.userRepository.manager.findOne(Role, { where: { name: 'user' } });
+        if (!role) {
+            throw new NotFoundException('Default role not found');
+        }
+
+        const groups = [];
+        if (registerDto.groupNames) {
+            for (const groupName of registerDto.groupNames) {
+                let group = await this.userRepository.manager.findOne(Group, { where: { name: groupName } });
+                if (!group) {
+                    console.log('asss');
+
+                    // Если группы нет, создаем ее
+                    group = this.userRepository.manager.create(Group, { name: groupName });
+                    group = await this.userRepository.manager.save(group);
+                }
+                groups.push(group);
+            }
+        }
+        console.log(groups);
+
 
         const hashedPassword = await this.generatePasswordHash(registerDto.password);
-        const user = this.userRepository.create({ ...registerDto, password: hashedPassword });
+        const user = this.userRepository.create(
+            {
+                ...registerDto,
+                password: hashedPassword,
+                role,
+                group: groups
+            });
 
-        const session = this.sessionRepository.create({ user, deviceIp });
-        await this.sessionRepository.save(session);
+        // Save user to database
+        await this.userRepository.save(user);
 
         const payload = {
             userId: user.id,
             userName: user.username,
-            group: user.group,
+            groups: user.group,
             phone: user.phone,
             avatar: user.avatar,
             email: user.email,
-            role: user.role.name
+            role: role
         };
-        // const token = this.jwtService.sign(payload);
+
         const accessToken = await this.jwtService.signAsync(payload);
         const refreshToken = await this.jwtService.signAsync(payload, {
             expiresIn: '7d',
         });
-        user.sessions.push(session);
-        await this.userRepository.save(user);
+
         return { accessToken, refreshToken };
     }
 
@@ -110,6 +147,9 @@ export class AuthService {
                 where: { deviceIp: device },
                 relations: ['user'],
             });
+        if (!session) {
+            return null;
+        }
         return await this.sessionRepository.delete(session);
     }
 

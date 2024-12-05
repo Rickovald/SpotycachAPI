@@ -10,7 +10,9 @@ export class AuthController {
     constructor(private authService: AuthService) { }
 
     @Post('register')
-    async register(@Body() registerDto: RegisterDto, @Req() req) {
+    async register(@Body() registerDto, @Req() req) {
+        console.log(registerDto);
+
         const userAgent = req.get('User-Agent');
         const ip = req.ip;
         const language = req.get('Accept-Language');

@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { CreateGroupDto, UpdateGroupDto } from '../common/dtos/group.dto';
 import { Group } from '../common/entities/group.entity';
+import { User } from 'src/common/entities/user.entity';
 
 @Injectable()
 export class GroupService {
@@ -14,6 +15,9 @@ export class GroupService {
     constructor(
         @InjectRepository(Group)
         private readonly groupRepository: Repository<Group>,
+
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
     ) { }
 
     /**
@@ -31,11 +35,39 @@ export class GroupService {
      * this function is used to get all the group's list
      * @returns promise of array of group
      */
-    async findAllGroup(): Promise<Group[]> {
-        const data = await this.groupRepository.find({
-            relations: ['user'],
+    async findAllGroup(userId: string | null): Promise<Group[]> {
+        const groups = await this.groupRepository.find({
+            relations: ['users'],
         });
-        return data;
+
+        if (!userId) {
+            // Если userId === null, возвращаем группы без пользователей
+            return groups.map(group => ({ ...group, users: [] }));
+        }
+
+        // Получаем пользователя с указанным userId
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['role'], // Предполагается, что есть связь roles в User
+        });
+        console.log(user);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        const isAdmin = user.role && user.role.name === 'admin';
+
+        if (isAdmin) {
+            // Если администратор, возвращаем все группы с пользователями
+            return groups;
+        }
+
+        // Если не администратор, скрываем пользователей в группах, где пользователь не является членом
+        return groups.map(group => {
+            const isMember = group.users.some(u => u.id === userId);
+            return isMember ? group : { ...group, users: [] };
+        });
     }
 
     /**
@@ -48,7 +80,7 @@ export class GroupService {
         try {
             const user = await this.groupRepository.findOne({
                 where: { id: id },
-                relations: ['user'],
+                relations: ['users'],
             });
             if (!user) {
                 throw new Error('Group not found.');
@@ -95,6 +127,31 @@ export class GroupService {
     async removeGroup(id: string): Promise<DeleteResult> {
         return await this.groupRepository.delete(id);
     }
+
+    async addUserToGroup(groupId: string, userId: string): Promise<Group> {
+        const group = await this.groupRepository.findOne({
+            where: { id: groupId },
+            relations: ['users'],
+        });
+
+        if (!group) {
+            throw new NotFoundException('Group not found');
+        }
+
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Check if user is already in the group
+        if (group.users.some(u => u.id === userId)) {
+            throw new Error('User is already in the group');
+        }
+
+        group.users.push(user);
+        return await this.groupRepository.save(group);
+    }
+
 }
 
 // function getStartAndEndOfWeek(mondayDate: string) {

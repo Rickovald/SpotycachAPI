@@ -1,5 +1,6 @@
-import { IsAlphanumeric, IsNotEmpty, MinLength, } from 'class-validator';
+import { ArrayMinSize, IsAlphanumeric, IsArray, IsNotEmpty, IsOptional, IsString, MinLength, } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
+import { User } from '../entities/user.entity';
 
 export class CreateGroupDto {
   @IsNotEmpty()
@@ -10,4 +11,11 @@ export class CreateGroupDto {
   name: string;
 
 }
-export class UpdateGroupDto extends PartialType(CreateGroupDto) { }
+export class UpdateGroupDto extends PartialType(CreateGroupDto) {
+
+  @IsArray()
+  @IsOptional()
+  @ArrayMinSize(1)
+  @IsString({ each: true }) // Каждая группа — строка
+  users: User[];
+}

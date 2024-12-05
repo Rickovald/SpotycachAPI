@@ -1,15 +1,16 @@
-import { IsString, IsNotEmpty, MinLength, MaxLength, IsEmail } from 'class-validator';
+import { IsString, IsNotEmpty, MinLength, MaxLength, IsEmail, Matches, IsOptional, IsArray, ArrayMinSize, ArrayMaxSize } from 'class-validator';
 import { DeepPartial } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { Session } from '../entities/session.entity';
 
 export class RegisterDto {
     @IsString()
-    @MinLength(8)
+    @MinLength(4)
     @MaxLength(60)
     username: string;
 
-    @IsEmail()
+    @IsString()
+    @Matches(/@/)
     @IsNotEmpty()
     email: string;
 
@@ -23,26 +24,22 @@ export class RegisterDto {
     @MaxLength(60)
     phone: string;
 
-    @IsString()
-    @MinLength(8)
     @MaxLength(60)
-    contact: string;
+    @IsOptional()
+    contact?: string;
 
-    @IsString()
-    @MinLength(8)
     @MaxLength(60)
-    telegram: string;
+    @IsOptional()
+    telegram?: string;
 
-    @IsString()
-    @MinLength(8)
     @MaxLength(60)
-    avatar: string;
+    @IsOptional()
+    avatar?: string;
 
-    @IsNotEmpty()
-    role: DeepPartial<Role>;; // простая роль
-
-    @IsString()
-    @MinLength(8)
-    @MaxLength(60)
-    sessions: DeepPartial<Session[]>;
+    @IsArray()
+    @IsOptional()
+    @ArrayMinSize(1)
+    @ArrayMaxSize(10) // Ограничение на количество групп
+    @IsString({ each: true }) // Каждая группа — строка
+    groupNames?: string[];
 }
