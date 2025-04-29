@@ -50,7 +50,6 @@ export class GroupService {
             where: { id: userId },
             relations: ['role'], // Предполагается, что есть связь roles в User
         });
-        console.log(user);
 
         if (!user) {
             throw new NotFoundException('User not found');
@@ -68,6 +67,11 @@ export class GroupService {
             const isMember = group.users.some(u => u.id === userId);
             return isMember ? group : { ...group, users: [] };
         });
+    }
+
+    async findAllNames(): Promise<string[]> {
+        const groups = await this.groupRepository.find();
+        return groups.map(g => g.name);
     }
 
     /**

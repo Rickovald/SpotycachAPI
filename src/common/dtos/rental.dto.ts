@@ -6,9 +6,6 @@ import { User } from '../entities/user.entity';
 export class CreateRentalDto {
   @IsNotEmpty()
   @MinLength(3, { message: 'Username must have atleast 3 characters.' })
-  @IsAlphanumeric(undefined, {
-    message: 'Username does not allow other than alpha numeric chars.',
-  })
   bookedBy: User;
 
   @IsDate()

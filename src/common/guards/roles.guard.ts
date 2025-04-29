@@ -9,8 +9,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 
-type Rights = 'full' | 'partial' | 'none';
-
 @Injectable()
 export class RolesGuard implements CanActivate {
     constructor(

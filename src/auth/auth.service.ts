@@ -24,8 +24,6 @@ export class AuthService {
     ) { }
 
     async register(registerDto: RegisterDto, deviceIp: string) {
-        console.log(registerDto);
-
         // Ensure the email is unique
         const existingUser = await this.userRepository.findOne({ where: { email: registerDto.email } });
         if (existingUser) {
@@ -52,8 +50,6 @@ export class AuthService {
                 groups.push(group);
             }
         }
-        console.log(groups);
-
 
         const hashedPassword = await this.generatePasswordHash(registerDto.password);
         const user = this.userRepository.create(
@@ -96,8 +92,6 @@ export class AuthService {
         }
         const existingSession = user.sessions.find(session => session.deviceIp === deviceIp);
         if (existingSession) {
-            console.log(user);
-
             const payload = {
                 userId: user.id,
                 userName: user.username,
@@ -165,7 +159,15 @@ export class AuthService {
         return salt + '.' + hash.toString('hex');
     }
 
-    async refreshAccessToken(refreshToken: string) {
+    async refreshAccessToken(refreshToken: string, device: string) {
+        const session = await this.sessionRepository.findOne(
+            {
+                where: { deviceIp: device },
+                relations: ['user'],
+            });
+        if (!session) {
+            throw new NotFoundException('session not found');
+        }
         try {
             const decoded = await this.jwtService.verifyAsync(refreshToken);
             const payload = {

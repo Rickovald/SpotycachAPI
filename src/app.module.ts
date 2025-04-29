@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuthModule } from "./auth/auth.module";
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AppointsModule } from './appoints/appoints.module';
 import { StuffModule } from './stuff/stuff.module';
 import { ComplectModule } from './complect/complects.module';
@@ -45,7 +43,7 @@ import { GroupModule } from './groups/groups.module';
     TypeOrmModule.forFeature([Session]),
     ScheduleModule.forRoot(),
   ],
-  controllers: [AppController],
-  providers: [AppService, SessionCleanerService],
+  controllers: [],
+  providers: [SessionCleanerService],
 })
 export class AppModule { }

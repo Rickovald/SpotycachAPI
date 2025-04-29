@@ -33,7 +33,7 @@ export class AppointsService {
     if (!!createAppointDto.bookedBy) {
       user = await this.userRepository.findOneBy({ id: createAppointDto.bookedBy });
     }
-    createAppointDto.datetime.forEach((date) => {
+    createAppointDto.datetimes.forEach((date) => {
       const appoint: Appoints = new Appoints();
       appoint.bookedBy = user;
       appoint.datetime = date;
@@ -49,11 +49,12 @@ export class AppointsService {
    * @returns promise of array of appoints
    */
 
-  async findAllAppoints(): Promise<Appoints[]> {
-    const data = await this.appointsRepository.find({
-      relations: ['stuff', 'bookedBy']
-    });
-    return data;
+  async findAllAppoints(): Promise<Omit<Appoints, 'userName'>[]>{
+    const data = await this.appointsRepository.find();
+    const cleanedData = data.map(({ userName, ...rest }) => rest);
+  
+    return cleanedData;
+  }
     // const result: Schedule[] = [];
     // let monday = '';
     // let id = 0;
@@ -78,7 +79,7 @@ export class AppointsService {
     //   result[weekIndex].slots[`${weekDaysNames[dayOfWeek]}`].push(element);
     // });
     // return result;
-  }
+  // }
 
   /**
    * this function used to get data of use whose id is passed in parameter

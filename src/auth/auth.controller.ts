@@ -50,7 +50,11 @@ export class AuthController {
     // @UseGuards(AuthGuard('jwt'))
     @Post('refresh')
     async refresh(@Req() req) {
-        const token = await this.authService.refreshAccessToken(req.body.refreshToken);
+        const userAgent = req.get('User-Agent');
+        const ip = req.ip;
+        const language = req.get('Accept-Language');
+        const device = `${userAgent} ${ip} ${language}`;
+        const token = await this.authService.refreshAccessToken(req.body.refreshToken, device);
         console.log(token);
         return token;
     }

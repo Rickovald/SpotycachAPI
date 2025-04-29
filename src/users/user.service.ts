@@ -16,13 +16,13 @@ export class UserService {
     ) { }
 
     async findAll(): Promise<User[]> {
-        return this.userRepository.find({
+        return await this.userRepository.find({
             relations: ['role', 'sessions', 'group']
         });
     }
 
     async findOne(id: string): Promise<User> {
-        return this.userRepository.findOne({
+        return await this.userRepository.findOne({
             where: { id: id },
             relations: ['role', 'sessions', 'group'],
         });
@@ -37,7 +37,7 @@ export class UserService {
 
         const role = await this.roleRepository.findOneBy({ name: 'user' });
         user.role = role;
-        return this.userRepository.save(user);
+        return await this.userRepository.save(user);
     }
 
     // async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
